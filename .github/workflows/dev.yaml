@@ -33,7 +33,7 @@ jobs:
       - name: Get and unpack frontend build
         run: |
           cd funkwhale/api
-          curl -L -o front.zip "https://dev.funkwhale.audio/funkwhale/funkwhale/-/jobs/artifacts/${env.FUNKWHALE_REV}/download?job=build_front"
+          curl -L -o front.zip "https://dev.funkwhale.audio/funkwhale/funkwhale/-/jobs/artifacts/${{ env.FUNKWHALE_REV }}/download?job=build_front"
           unzip front.zip
           cp -r front/dist frontend
 
@@ -48,7 +48,7 @@ jobs:
         with:
           context: funkwhale/api
           file: funkwhale/api/Dockerfile
-          platforms: ${ env.PLATFORMS }
+          platforms: ${{ env.PLATFORMS }}
           push: false
 
   build-and-push:
@@ -67,7 +67,7 @@ jobs:
       - name: Get and unpack frontend build
         run: |
           cd funkwhale/api
-          curl -L -o front.zip "https://dev.funkwhale.audio/funkwhale/funkwhale/-/jobs/artifacts/${env.FUNKWHALE_REV}/download?job=build_front"
+          curl -L -o front.zip "https://dev.funkwhale.audio/funkwhale/funkwhale/-/jobs/artifacts/${{ env.FUNKWHALE_REV }}/download?job=build_front"
           unzip front.zip
           cp -r front/dist frontend
 
@@ -96,9 +96,9 @@ jobs:
           context: funkwhale/api
           file: funkwhale/api/Dockerfile
           tags: |
-            florianpiesche/${env.IMAGE_NAME}:develop
-            florianpiesche/${env.IMAGE_NAME}:${{env.FUNKWHALE_REV}}
-            ghcr.io/fpiesche/${env.IMAGE_NAME}:develop
-            ghcr.io/fpiesche/${env.IMAGE_NAME}:${{env.FUNKWHALE_REV}}
-          platforms: ${ env.PLATFORMS }
+            florianpiesche/${{ env.IMAGE_NAME }}:develop
+            florianpiesche/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_REV }}
+            ghcr.io/fpiesche/${{ env.IMAGE_NAME }}:develop
+            ghcr.io/fpiesche/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_REV }}
+          platforms: ${{ env.PLATFORMS }}
           push: true
