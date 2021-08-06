@@ -22,6 +22,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
       - name: Get current commit on funkwhale submodule
         run: |
           echo FUNKWHALE_REV=$(git rev-parse --short @:./funkwhale) >> $GITHUB_ENV
@@ -52,6 +56,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
       - name: Get current commit on funkwhale submodule
         run: |
           echo FUNKWHALE_REV=$(git rev-parse --short @:./funkwhale) >> $GITHUB_ENV
