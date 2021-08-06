@@ -1,3 +1,6 @@
 [submodule "funkwhale"]
 	path = funkwhale
 	url = https://dev.funkwhale.audio/funkwhale/funkwhale.git
+[submodule "docker-funkwhale"]
+	path = docker-funkwhale
+	url = https://github.com/thetarkus/docker-funkwhale.git
