@@ -13,8 +13,7 @@ on:
       - '**/*.md'
 
 env:
-  # PLATFORMS: linux/arm/v6,linux/arm/v7,linux/arm64/v8,linux/amd64
-  PLATFORMS: linux/amd64
+  PLATFORMS: linux/arm/v6,linux/arm/v7,linux/arm64/v8,linux/amd64
   IMAGE_NAME: funkwhale-aio
   PUSH_IMAGE: ${{ github.ref == 'refs/heads/main' }}
 

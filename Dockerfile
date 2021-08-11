@@ -25,11 +25,11 @@ EXPOSE 80
 
 # Install dependencies
 RUN apk add --no-cache \
-    python3-dev py3-pillow py3-pip py3-psycopg2 \
-    libpq postgresql postgresql-contrib postgresql-dev ffmpeg redis nginx \
-    gettext make musl-dev gcc git libffi-dev zlib-dev libxml2-dev libxslt-dev \
-    ffmpeg libmagic unzip \
-    shadow libldap libsasl openldap-dev
+    py3-pillow py3-pip py3-psycopg2 py3-cryptography git \
+    libpq postgresql postgresql-contrib ffmpeg redis nginx \
+    shadow libldap libsasl ffmpeg libmagic unzip \
+    gettext make musl-dev gcc \
+    python3-dev libffi-dev zlib-dev openldap-dev postgresql-dev
 
 # Set up users and directories
 RUN adduser -s /bin/false -D -H funkwhale funkwhale && \
@@ -47,6 +47,8 @@ COPY ./src/api/requirements/ /app/api/requirements/
 RUN ln -s /usr/bin/python3 /usr/bin/python && \
     echo 'fixing requirements file for alpine' && \
     sed -i '/Pillow/d' /app/api/requirements/base.txt && \
+    sed -i '/cryptography/d' /app/api/requirements/base.txt && \
+    sed -i 's/psycopg2-binary/psycopg2/' /app/api/requirements/base.txt && \
     echo 'installing pip requirements' && \
     pip3 install -r /app/api/requirements.txt && \
     pip3 install gunicorn uvicorn service_identity
