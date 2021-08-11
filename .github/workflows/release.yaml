@@ -15,10 +15,11 @@ on:
 env:
   PLATFORMS: linux/arm/v6,linux/arm/v7,linux/arm64/v8,linux/amd64
   IMAGE_NAME: funkwhale
+  BUILD_RELEASE: true
+  PUSH_IMAGE: ${{ github.ref == 'refs/heads/main' }}
 
 jobs:
-  build-only:
-    if: github.ref != 'refs/heads/main'
+  build-image:
     runs-on: ubuntu-latest
     
     steps:
@@ -32,12 +33,13 @@ jobs:
           git fetch --tags
           LATEST_TAG_REV=$(git rev-list --tags --max-count 1)
           FUNKWHALE_RELEASE=$(git describe --tags ${LATEST_TAG_REV})
+          echo "FUNKWHALE_REVISION=${LATEST_TAG_REV}" >> $GITHUB_ENV
           echo "FUNKWHALE_RELEASE=${FUNKWHALE_RELEASE}" >> $GITHUB_ENV
           git checkout ${FUNKWHALE_RELEASE}
 
       - name: Check whether latest release needs building
+        if: ${{ env.PUSH_IMAGE }}
         run: |
-          echo "BUILD_RELEASE=true" >> $GITHUB_ENV
           # Check whether there already is a Docker image for the current tag
           SERVER_TAGS=$(curl -s https://registry.hub.docker.com/v1/repositories/florianpiesche/funkwhale/tags | jq -r ".[].name") || SERVER_TAGS="none"
           for tag in ${SERVER_TAGS[@]}; do
@@ -49,7 +51,7 @@ jobs:
           done
 
       - name: Get and unpack frontend build
-        if: env.BUILD_RELEASE == 'true'
+        if: ${{ env.BUILD_RELEASE }}
         run: |
           cd funkwhale/api
           curl -L -o front.zip "https://dev.funkwhale.audio/funkwhale/funkwhale/-/jobs/artifacts/${{ env.FUNKWHALE_RELEASE }}/download?job=build_front"
@@ -57,78 +59,22 @@ jobs:
           cp -r front/dist frontend
 
       - name: Docker Setup QEMU
-        if: env.BUILD_RELEASE == 'true'
+        if: ${{ env.BUILD_RELEASE }}
         uses: docker/setup-qemu-action@v1
 
       - name: Docker Setup Buildx
-        if: env.BUILD_RELEASE == 'true'
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build base Docker image
-        if: env.BUILD_RELEASE == 'true'
-        uses: docker/build-push-action@v2
-        with:
-          context: funkwhale/api
-          file: funkwhale/api/Dockerfile
-          platforms: ${{ env.PLATFORMS }}
-          push: false
-
-  build-and-push:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Get latest tagged release
-        run: |
-          cd funkwhale
-          git fetch --tags
-          LATEST_TAG_REV=$(git rev-list --tags --max-count 1)
-          FUNKWHALE_RELEASE=$(git describe --tags ${LATEST_TAG_REV})
-          echo "FUNKWHALE_RELEASE=${FUNKWHALE_RELEASE}" >> $GITHUB_ENV
-          git checkout ${FUNKWHALE_RELEASE}
-
-      - name: Check whether latest release needs building
-        run: |
-          echo "BUILD_RELEASE=true" >> $GITHUB_ENV
-          # Check whether there already is a Docker image for the current tag
-          SERVER_TAGS=$(curl -s https://registry.hub.docker.com/v1/repositories/florianpiesche/funkwhale/tags | jq -r ".[].name") || SERVER_TAGS="none"
-          for tag in ${SERVER_TAGS[@]}; do
-            if [[ "$tag" == "${FUNKWHALE_RELEASE}" ]]; then
-              echo "Release ${tag} has already been built."
-              echo "BUILD_RELEASE=false" >> $GITHUB_ENV
-              break
-            fi
-          done
-
-      - name: Get and unpack frontend build
-        if: env.BUILD_RELEASE == 'true'
-        run: |
-          cd funkwhale/api
-          curl -L -o front.zip "https://dev.funkwhale.audio/funkwhale/funkwhale/-/jobs/artifacts/${{ env.FUNKWHALE_RELEASE }}/download?job=build_front"
-          unzip front.zip
-          cp -r front/dist frontend
-
-      - name: Docker Setup QEMU
-        if: env.BUILD_RELEASE == 'true'
-        uses: docker/setup-qemu-action@v1
-
-      - name: Docker Setup Buildx
-        if: env.BUILD_RELEASE == 'true'
+        if: ${{ env.BUILD_RELEASE }}
         uses: docker/setup-buildx-action@v1
 
       - name: Login to DockerHub
-        if: env.BUILD_RELEASE == 'true'
+        if: ${{ env.PUSH_IMAGE && env.BUILD_RELEASE }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        if: env.BUILD_RELEASE == 'true'
+        if: ${{ env.PUSH_IMAGE && env.BUILD_RELEASE }}
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
@@ -136,15 +82,18 @@ jobs:
           password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and push base Docker image
-        if: env.BUILD_RELEASE == 'true'
+        if: ${{ env.BUILD_RELEASE }}
         uses: docker/build-push-action@v2
         with:
+          build-args: |
+            FUNKWHALE_VERSION=${{ env.FUNKWHALE_RELEASE }}
+            FUNKWHALE_REVISION=${{ env.FUNKWHALE_REVISION }}
           context: funkwhale/api
           file: funkwhale/api/Dockerfile
           tags: |
-            florianpiesche/${{ env.IMAGE_NAME }}:latest
-            florianpiesche/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_RELEASE }}
-            ghcr.io/fpiesche/${{ env.IMAGE_NAME }}:latest
-            ghcr.io/fpiesche/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_RELEASE }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_RELEASE }}
+            ghcr.io/${{ github.repo_owner }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ github.repo_owner }}/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_RELEASE }}
           platforms: ${{ env.PLATFORMS }}
-          push: true
+          push: ${{ env.PUSH_IMAGE }}
