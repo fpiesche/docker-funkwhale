@@ -25,9 +25,9 @@ EXPOSE 80
 
 # Install dependencies
 RUN apk add --no-cache \
-    python3-dev py3-cryptography py3-pillow py3-pip py3-psycopg2 \
+    python3-dev py3-pillow py3-pip py3-psycopg2 \
     libpq postgresql postgresql-contrib postgresql-dev ffmpeg redis nginx \
-    gettext make musl-dev gcc git libffi-dev zlib-dev \
+    gettext make musl-dev gcc git libffi-dev zlib-dev libxml2-dev libxslt-dev \
     ffmpeg libmagic unzip \
     shadow libldap libsasl openldap-dev
 
