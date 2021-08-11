@@ -75,7 +75,7 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_REV }}
-            ghcr.io/${{ github.repo_owner }}/${{ env.IMAGE_NAME }}:latest
-            ghcr.io/${{ github.repo_owner }}/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_REV }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_REV }}
           platforms: ${{ env.PLATFORMS }}
           push: ${{ env.PUSH_IMAGE }}
