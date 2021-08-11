@@ -81,6 +81,11 @@ jobs:
           ./scripts/download-artifact.sh src/ ${{ env.FUNKWHALE_RELEASE }} build_api
           ./scripts/download-nginx-template.sh src/ ${{ env.FUNKWHALE_RELEASE }}
 
+      - name: Copy modified Dockerfile into all-in-one buildspace
+        run: |
+          rm ./docker-funkwhale/Dockerfile
+          cp ./Dockerfile ./docker-funkwhale/Dockerfile
+
       - name: Build and push ${{ env.IMAGE_NAME }} Docker image
         if: ${{ env.BUILD_RELEASE }}
         uses: docker/build-push-action@v2
