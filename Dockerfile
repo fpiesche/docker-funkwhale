@@ -3,6 +3,7 @@ FROM alpine:3.14.1
 ARG FUNKWHALE_VERSION
 ARG FUNKWHALE_REVISION
 ARG S6_RELEASE="v2.2.0.3"
+ENV S6_RELEASE ${S6_RELEASE}
 
 LABEL org.opencontainers.image.authors="Florian Piesche <florian@yellowkeycard.net>" \
     org.opencontainers.image.url="https://github.com/fpiesche/docker-funkwhale/" \
@@ -37,8 +38,8 @@ RUN adduser -s /bin/false -D -H funkwhale funkwhale && \
     if [ -f /etc/nginx/conf.d/default.conf ]; then rm /etc/nginx/conf.d/default.conf; fi
 
 # Set up S6
-RUN wget https://github.com/just-containers/s6-overlay/releases/download/${S6_RELEASE}/s6-overlay-`uname -m`.tar.gz /tmp && \
-    tar xzf /tmp/s6-overlay-${ARCH}.tar.gz -C
+ADD ./get-s6.sh /tmp
+RUN /tmp/get-s6.sh
 
 COPY ./src/api/requirements.txt /app/api/requirements.txt
 COPY ./src/api/requirements/ /app/api/requirements/
