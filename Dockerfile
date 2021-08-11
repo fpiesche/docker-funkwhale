@@ -70,7 +70,7 @@ RUN \
 	\
 	\
 	echo 'setting up nginx' && \
-	rm /etc/nginx/conf.d/default.conf && \
+	if [ -f /etc/nginx/conf.d/default.conf ]; then rm /etc/nginx/conf.d/default.conf; fi && \
 	\
 	\
 	echo 'removing temp files' && \
