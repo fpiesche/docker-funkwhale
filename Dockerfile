@@ -37,8 +37,7 @@ RUN adduser -s /bin/false -D -H funkwhale funkwhale && \
     if [ -f /etc/nginx/conf.d/default.conf ]; then rm /etc/nginx/conf.d/default.conf; fi
 
 # Set up S6
-RUN export ARCH=`uname -m` && \
-    wget https://github.com/just-containers/s6-overlay/releases/download/${S6_RELEASE}/s6-overlay-${ARCH}.tar.gz /tmp && \
+RUN wget https://github.com/just-containers/s6-overlay/releases/download/${S6_RELEASE}/s6-overlay-`uname -m`.tar.gz /tmp && \
     tar xzf /tmp/s6-overlay-${ARCH}.tar.gz -C
 
 COPY ./src/api/requirements.txt /app/api/requirements.txt
