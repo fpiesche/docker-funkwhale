@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
   # Also run on updates to this workflow.
   push:
+    branches:
+      - main
     paths-ignore:
       - '**/*.md'
   # Run on PRs except for documentation
