@@ -69,8 +69,8 @@ jobs:
           context: funkwhale/api
           file: funkwhale/api/Dockerfile
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:develop
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_REV }}
+            ${{ secrets.DOCKERHUB_USERNAME || "nobody" }}/${{ env.IMAGE_NAME }}:develop
+            ${{ secrets.DOCKERHUB_USERNAME || "nobody" }}/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_REV }}
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:develop
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.FUNKWHALE_REV }}
           platforms: ${{ env.PLATFORMS }}
