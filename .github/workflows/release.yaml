@@ -85,7 +85,7 @@ jobs:
 
       - name: Build and push base Docker image
         if: ${{ env.BUILD_RELEASE == 'true' }}
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           build-args: |
             FUNKWHALE_VERSION=${{ env.FUNKWHALE_RELEASE }}
